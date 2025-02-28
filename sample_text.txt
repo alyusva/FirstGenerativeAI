@@ -1,4 +1,3 @@
-Hola, bienvenido a mi aplicación de IA generativa.
-    Esta IA es capaz de generar textos basados en tus entradas.
-    Puedes preguntarle cosas o pedirle que escriba historias, chistes, o código.
+Había una vez un mundo donde la inteligencia artificial escribía historias increíbles.
+    En ese mundo, la gente usaba la IA para crear literatura, noticias y aventuras.
     
