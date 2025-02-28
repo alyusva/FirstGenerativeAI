@@ -1,0 +1,4 @@
+Hola, bienvenido a mi aplicación de IA generativa.
+    Esta IA es capaz de generar textos basados en tus entradas.
+    Puedes preguntarle cosas o pedirle que escriba historias, chistes, o código.
+    
