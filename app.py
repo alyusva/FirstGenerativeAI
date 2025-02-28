@@ -2,9 +2,10 @@ import streamlit as st
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments, TextDataset, DataCollatorForLanguageModeling
 import os
+import PyPDF2  
 
-# Configurar la app
-st.title("🚀 Aplicación de IA Generativa en Español con GPT-2")
+# Configurar la aplicación
+st.title("🚀 Mi primera aplicación de IA Generativa en Español con GPT-2")
 
 # Cargar el modelo en español
 MODEL_NAME = "DeepESP/gpt2-spanish"
@@ -18,8 +19,32 @@ else:
     model = AutoModelForCausalLM.from_pretrained(MODEL_NAME).to("cpu")
     st.write("🔄 **Modelo base en español cargado.**")
 
+# Función para extraer texto de un archivo PDF
+def extract_text_from_pdf(pdf_file):
+    pdf_reader = PyPDF2.PdfReader(pdf_file)
+    text = ""
+    for page in pdf_reader.pages:
+        text += page.extract_text() + "\n"
+    return text
+
+# **Sección para subir archivos PDF o TXT**
+st.subheader("📂 Subir un archivo de texto para entrenar el modelo")
+
+uploaded_file = st.file_uploader("Sube un archivo PDF o TXT", type=["pdf", "txt"])
+
+if uploaded_file is not None:
+    if uploaded_file.type == "application/pdf":
+        text = extract_text_from_pdf(uploaded_file)
+    else:
+        text = uploaded_file.getvalue().decode("utf-8")
+
+    with open("training_text.txt", "w") as f:
+        f.write(text)
+
+    st.success("✅ Archivo cargado y listo para el entrenamiento.")
+
 # Función para entrenar el modelo
-def train_model(dataset_path="sample_text.txt", output_dir="gpt2_finetuned"):
+def train_model(dataset_path="training_text.txt", output_dir="gpt2_finetuned"):
     st.write("⚡ Entrenando modelo... Esto puede tardar unos minutos.")
 
     # Crear dataset
@@ -56,21 +81,13 @@ def train_model(dataset_path="sample_text.txt", output_dir="gpt2_finetuned"):
     trainer.save_model(output_dir)
     st.success("🎉 ¡Entrenamiento completado! Modelo guardado en 'gpt2_finetuned'.")
 
-# Botón para entrenar el modelo
-if st.button("Entrenar Modelo"):
-    # Crear un dataset de muestra
-    sample_text = """Había una vez un mundo donde la inteligencia artificial escribía historias increíbles.
-    En ese mundo, la gente usaba la IA para crear literatura, noticias y aventuras.
-    """
-    
-    with open("sample_text.txt", "w") as f:
-        f.write(sample_text)
-
+# Botón para entrenar el modelo solo si hay un archivo cargado
+if uploaded_file is not None and st.button("Entrenar Modelo"):
     train_model()
 
-# Interfaz para ingresar un prompt y generar texto
+# **Sección de generación de texto**
 st.subheader("📝 Generación de Texto")
-prompt = st.text_area("Introduce tu prompt:", "Había una vez un mundo futurista...")
+prompt = st.text_area("Introduce tu prompt:", "Había una vez en un mundo futurista...")
 
 # Función para generar texto
 def generate_text(prompt, model, tokenizer, max_length=100, temperature=0.7, top_k=50, top_p=0.9):
@@ -94,4 +111,3 @@ if st.button("Generar Texto"):
         generated_text = generate_text(prompt, model, tokenizer)
         st.write("### ✨ Texto generado:")
         st.write(generated_text)
-
